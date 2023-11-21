@@ -47,3 +47,6 @@ Thumbs.db
 
 # Components
 /src/app/shared/recaptcha
+
+# Enviroment
+.env

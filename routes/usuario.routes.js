@@ -4,5 +4,7 @@ const router = express.Router()
 
 router.post('/saveUsuario', usuarioController.saveUsuario)
 router.get('/getUsuarios', usuarioController.getUsuarios)
+router.post('/signIn', usuarioController.signIn)
+router.post('/logOut', usuarioController.logOut)
 
 module.exports = router
