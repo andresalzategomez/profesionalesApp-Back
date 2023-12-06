@@ -1,7 +1,8 @@
-const connectDB = require('../conection')
+// const connectDB = require('../conection')
+const sequelize = require('../conection') // importar la clase par la conexión de la base datos
 require('dotenv').config();
 const md5 = require('crypto-js/md5')
-let database = connectDB();
+// let database = connectDB();
 
 
 const saveUsuario = async (req, res) =>{
@@ -40,26 +41,46 @@ const saveUsuario = async (req, res) =>{
 }
 
 const getUsuarios = async (req, res) =>{
-    try {
-        database.ref("users").once('value').then(function(snapshot) {
-            usaurios = snapshot.val()
-            res.status(200).json({
-                'response': 'OK',
-                usaurios
-            })
-        })
-        // const result = await sequelize.query('SELECT * FROM ship', {type: sequelize.QueryTypes.SELECT})
+    // try {
+    //     database.ref("users").once('value').then(function(snapshot) {
+    //         usaurios = snapshot.val()
+    //         res.status(200).json({
+    //             'response': 'OK',
+    //             usaurios
+    //         })
+    //     })
+    //     // const result = await sequelize.query('SELECT * FROM ship', {type: sequelize.QueryTypes.SELECT})
         
+    // } catch (error) {
+    //     if (error.name) {
+    //         res.status(404).json({
+    //             error,
+    //             message: 'error en la búsqueda ' + error
+    //         })
+    //     } else {
+    //         res.status(500).json({
+    //             error,
+    //             message : 'Error inesperado ' + error
+    //         })
+    //     }
+    // }
+    try {
+        const usaurios = await sequelize.query('SELECT * FROM usuario', {type: sequelize.QueryTypes.SELECT})
+        // res.status(200).json({usaurios})
+        res.status(200).json({
+            'response': 'OK',
+            usaurios
+        })
     } catch (error) {
         if (error.name) {
             res.status(404).json({
                 error,
-                message: 'error en la búsqueda ' + error
+                message: 'error en la búsqueda'
             })
         } else {
             res.status(500).json({
                 error,
-                message : 'Error inesperado ' + error
+                message : 'Error inesperado'
             })
         }
     }
@@ -69,46 +90,84 @@ const signIn = async (req, res) =>{
     const {password, username} = req.body
     // let arrayInsertShip = [`${name}`, `${date_creation}`, `${date_destruction}`, `${id_type}`]
     try {
-        database.ref("users").once('value').then(function(snapshot) {
-            usaurios = snapshot.val()
-            console.log("rol", usaurios.role);
-            let userExist;
-            Object.entries(usaurios).forEach(([key, value]) => {
-                if(username == value.username && password == value.password){
-                    console.log("value", value);
-                    userExist = value
-                }
-            });
-            console.log("userExist", userExist);
-            if(userExist != undefined){
-                process.env['TOKEN'] = md5(userExist.username+Date.now());
+        // database.ref("users").once('value').then(function(snapshot) {
+        //     usaurios = snapshot.val()
+        //     console.log("rol", usaurios.role);
+        //     let userExist;
+        //     Object.entries(usaurios).forEach(([key, value]) => {
+        //         if(username == value.username && password == value.password){
+        //             console.log("value", value);
+        //             userExist = value
+        //         }
+        //     });
+        //     console.log("userExist", userExist);
+        //     if(userExist != undefined){
+        //         process.env['TOKEN'] = md5(userExist.username+Date.now());
                 
-                res.status(200).json({
-                    'response': 'OK',
-                    'description': 'Inicio de sesión exitoso!',
-                    'accessToken': process.env['TOKEN'],
-                    '_authenticated': true,
-                    'authenticatedData': {
-                        'nombre': userExist.nombre,
-                        'rol': userExist.role,
-                        'celular': userExist.celular,
-                        'correo': userExist.correo,
-                        'username': userExist.username
-                    }
-                })
+        //         res.status(200).json({
+        //             'response': 'OK',
+        //             'description': 'Inicio de sesión exitoso!',
+        //             'accessToken': process.env['TOKEN'],
+        //             '_authenticated': true,
+        //             'authenticatedData': {
+        //                 'nombre': userExist.nombre,
+        //                 'rol': userExist.role,
+        //                 'celular': userExist.celular,
+        //                 'correo': userExist.correo,
+        //                 'username': userExist.username
+        //             }
+        //         })
 
-                console.log("token", process.env.TOKEN);
-            }else{
-                res.status(200).json({
-                    'response': 'error',
-                    'description': 'El usuario no existe',
-                    'accessToken': null,
-                    '_authenticated': false,
-                    'authenticatedData': null
-                })
+        //         console.log("token", process.env.TOKEN);
+        //     }else{
+        //         res.status(200).json({
+        //             'response': 'error',
+        //             'description': 'El usuario no existe',
+        //             'accessToken': null,
+        //             '_authenticated': false,
+        //             'authenticatedData': null
+        //         })
+        //     }
+        // })
+        const usuarios = await sequelize.query('SELECT * FROM usuario', {type: sequelize.QueryTypes.SELECT})
+        // console.log("usaurios", usaurios);
+        let userExist;
+        
+        usuarios.forEach(element => {
+            console.log("element", element);
+            if(username == element.username && password == element.password){
+                console.log("value", element);
+                userExist = element
             }
-        })
-        // const result = await sequelize.query('SELECT * FROM ship', {type: sequelize.QueryTypes.SELECT})
+        });
+        console.log("userExist", userExist);
+        if(userExist != undefined){
+            process.env['TOKEN'] = md5(userExist.username+Date.now());
+            
+            res.status(200).json({
+                'response': 'OK',
+                'description': 'Inicio de sesión exitoso!',
+                'accessToken': process.env['TOKEN'],
+                '_authenticated': true,
+                'authenticatedData': {
+                    'nombre': userExist.nombre,
+                    'rol': userExist.role,
+                    'celular': userExist.celular,
+                    'correo': userExist.correo,
+                    'username': userExist.username
+                }
+            })
+
+            console.log("token", process.env.TOKEN);
+        }else{
+            res.status(200).json({
+                'response': 'error',
+                'description': 'El usuario no existe',
+                'accessToken': null,
+                '_authenticated': false,
+                'authenticatedData': null
+            })
+        }
         
     } catch (error) {
         if (error.name) {

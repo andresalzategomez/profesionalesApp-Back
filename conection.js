@@ -1,6 +1,7 @@
-// const Sequelize = require('sequelize') // metodo para conexión rápida a la base de datos
-// const path = 'mysql://root:root@localhost:3306/spaceship' // cadena de conexión a Base de datos
-var firebase = require('firebase');
+const Sequelize = require('sequelize') // metodo para conexión rápida a la base de datos
+const path = 'mysql://root:1234@localhost:3306/professionalapp' // cadena de conexión a Base de datos
+// var firebase = require('firebase');
+// var mysql = require('mysql');
 
 const firebaseConfig = {
     apiKey: "AIzaSyCXORnHRdtp4As7T4_SKBhe_rjCE9kSw4s",
@@ -13,10 +14,24 @@ const firebaseConfig = {
      measurementId: "G-GK5YZ09C7X"
  }
 
-firebase.initializeApp(firebaseConfig)
+// firebase.initializeApp(firebaseConfig)
 
-var connectDB = function(){
-    return firebase.database()
-} 
+// var connectDB = function(){
+//     return firebase.database()
+// } 
 
-module.exports = connectDB;
+const sequelize = new Sequelize(path, {
+    dialect: 'mysql',
+    operatorsAliases: 0 ,
+    logging: false,
+});
+
+// module.exports = connectDB;
+sequelize.authenticate()
+    .then(() => {
+        console.log('Conectado a Base de Datos.');
+    }).catch(err => {
+        console.error('Error de conexion:', err);
+    })
+
+module.exports = sequelize;

@@ -1,18 +1,18 @@
 // const sequelize = require('../conection') // importar la clase par la conexión de la base datos
-const connectDB = require('../conection')
+// const connectDB = require('../conection')
 
-let database = connectDB();
+// let database = connectDB();
 
 // Metodo para obtener de la base de datos todas los profesionales
 const getProfesional = async (req, res) =>{
     try {
-        database.ref("products").once('value').then(function(snapshot) {
-            products = snapshot.val()
-            res.status(200).json({
-                'response': 'OK',
-                products
-            })
-        })
+        // database.ref("products").once('value').then(function(snapshot) {
+        //     products = snapshot.val()
+        //     res.status(200).json({
+        //         'response': 'OK',
+        //         products
+        //     })
+        // })
         // const result = await sequelize.query('SELECT * FROM ship', {type: sequelize.QueryTypes.SELECT})
         
     } catch (error) {
