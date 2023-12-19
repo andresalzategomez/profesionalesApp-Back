@@ -1,6 +1,7 @@
 const fileController = require('../controllers/fileController.controller.js') // importar el controlador de caracteristica
 const express = require('express') //importar los metodos de la librería express para creación de API 
 const router = express.Router()
+const {checkSession} = require("../middlewares/origin.js")
 
 const multer = require('multer');
 
@@ -12,13 +13,13 @@ const storage = multer.diskStorage({
             cb(null, `${fileName}.${ext}`);
         },
         destination:function(res, file, cb){
-            cb(null, `./public`)
+            cb(null, `./src/public`)
         }
     }
 )
 
 const upload = multer({storage});
 
-router.post('/upload', upload.single('myFile'), fileController.uploadFile)
+router.post('/upload', upload.single('myFile'), checkSession, fileController.uploadFile)
 
 module.exports = router

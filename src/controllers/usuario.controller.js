@@ -40,6 +40,38 @@ const saveUsuario = async (req, res) =>{
     }
 }
 
+const updateUsuario = async (req, res) =>{
+    const { id, nombre, correo, celular} = req.body?.data
+    console.log(id + ", ", nombre + ", " + correo + ", " + celular)
+
+    try {
+        const result = await sequelize.query(`UPDATE usuario 
+        SET nombre = "${nombre}",  
+        email = "${correo}",
+        celular = "${celular}"
+        WHERE id = ${id}`,
+        { type: sequelize.QueryTypes.INSERT })
+        res.status(200).json({
+            message: 'Usuario Actualizado con Éxito!',
+            'response': 'OK',
+            result,
+    })
+
+    } catch (error) {
+        if (error.name) {
+            res.status(400).json({
+                error,
+                message: 'error en la actualización'
+            })
+        } else {
+            res.status(500).json({
+                error,
+                message : 'Error inesperado'
+            })
+        }
+    }
+}
+
 const getUsuarios = async (req, res) =>{
     // try {
     //     database.ref("users").once('value').then(function(snapshot) {
@@ -70,6 +102,29 @@ const getUsuarios = async (req, res) =>{
         res.status(200).json({
             'response': 'OK',
             usaurios
+        })
+    } catch (error) {
+        if (error.name) {
+            res.status(404).json({
+                error,
+                message: 'error en la búsqueda'
+            })
+        } else {
+            res.status(500).json({
+                error,
+                message : 'Error inesperado'
+            })
+        }
+    }
+}
+
+const getRole = async (req, res) =>{
+    try {
+        const rol = await sequelize.query('SELECT * FROM rol', {type: sequelize.QueryTypes.SELECT})
+        // res.status(200).json({usaurios})
+        res.status(200).json({
+            'response': 'OK',
+            rol
         })
     } catch (error) {
         if (error.name) {
@@ -142,18 +197,20 @@ const signIn = async (req, res) =>{
         });
         console.log("userExist", userExist);
         if(userExist != undefined){
-            process.env['TOKEN'] = md5(userExist.username+Date.now());
+            process.env.TOKEN = md5(userExist.username+Date.now());
             
             res.status(200).json({
                 'response': 'OK',
                 'description': 'Inicio de sesión exitoso!',
-                'accessToken': process.env['TOKEN'],
+                'accessToken': process.env.TOKEN,
                 '_authenticated': true,
                 'authenticatedData': {
+                    'id': userExist.id,
                     'nombre': userExist.nombre,
-                    'rol': userExist.role,
+                    'documento': userExist.documento,
+                    'rol': userExist.rol_id,
                     'celular': userExist.celular,
-                    'correo': userExist.correo,
+                    'correo': userExist.email,
                     'username': userExist.username
                 }
             })
@@ -186,11 +243,11 @@ const signIn = async (req, res) =>{
 
 const logOut = async (req, res) =>{
     try {
-        process.env['TOKEN'] = undefined;
+        process.env.TOKEN = undefined;
         res.status(200).json({
             'response': 'OK',
             'description': 'Sesión cerrada exitosamente!',
-            'accessToken': process.env['TOKEN'],
+            'accessToken': process.env.TOKEN,
             '_authenticated': false,
             'authenticatedData': null
         })        
@@ -210,6 +267,8 @@ const logOut = async (req, res) =>{
 }
 
 exports.saveUsuario = saveUsuario
+exports.updateUsuario = updateUsuario
 exports.getUsuarios = getUsuarios
+exports.getRole = getRole
 exports.signIn = signIn
 exports.logOut = logOut

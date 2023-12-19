@@ -1,4 +1,5 @@
 const express = require ("express") // importar metodos para creación de api
+require('dotenv').config();
 const helmet = require('helmet') // metodo en conjunto de express para proteger el consumo de api
 const bodyParser = require('body-parser') // metodo para asignar cuerpo de una petición mediante JSON
 const cors = require('cors') // metodo para proteger y permitir recursos mediante HTTP
@@ -15,6 +16,7 @@ const fileRoute = require('./routes/file.routes')
 const app = express()
 app.use(helmet())
 app.use(cors())
+app.use(bodyParser.json({limit: '35mb'}));
 
 // cambiar body-parser por express.bodyparser 
 app.use(bodyParser.urlencoded({ extended: false })) 
