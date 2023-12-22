@@ -141,6 +141,29 @@ const getRole = async (req, res) =>{
     }
 }
 
+const getFaqs = async (req, res) =>{
+    try {
+        const faq = await sequelize.query('SELECT * FROM faq', {type: sequelize.QueryTypes.SELECT})
+        // res.status(200).json({usaurios})
+        res.status(200).json({
+            'response': 'OK',
+            faq
+        })
+    } catch (error) {
+        if (error.name) {
+            res.status(404).json({
+                error,
+                message: 'error en la búsqueda'
+            })
+        } else {
+            res.status(500).json({
+                error,
+                message : 'Error inesperado'
+            })
+        }
+    }
+}
+
 const signIn = async (req, res) =>{
     const {password, username} = req.body
     // let arrayInsertShip = [`${name}`, `${date_creation}`, `${date_destruction}`, `${id_type}`]
@@ -270,5 +293,6 @@ exports.saveUsuario = saveUsuario
 exports.updateUsuario = updateUsuario
 exports.getUsuarios = getUsuarios
 exports.getRole = getRole
+exports.getFaqs = getFaqs
 exports.signIn = signIn
 exports.logOut = logOut
