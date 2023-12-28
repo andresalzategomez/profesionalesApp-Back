@@ -4,9 +4,11 @@ const router = express.Router()
 const {checkSession} = require("../middlewares/origin.js")
 
 router.post('/saveUsuario', checkSession, usuarioController.saveUsuario)
+router.post('/createUsuario', usuarioController.createUsuario)
 router.post('/updateUsuario', checkSession, usuarioController.updateUsuario)
 router.get('/getUsuarios',checkSession, usuarioController.getUsuarios)
 router.post('/getRole', checkSession, usuarioController.getRole)
+router.post('/getFaq', usuarioController.getFaqs)
 router.post('/signIn', usuarioController.signIn)
 router.post('/logOut', usuarioController.logOut)
 

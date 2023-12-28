@@ -14,7 +14,7 @@ const saveUsuario = async (req, res) =>{
         const respuesta = storesRef.child(username).set(req.body.data);
         respuesta.then((value) => {
             res.status(200).json({
-                message: 'Usuario Creado',
+                message: 'Usuario guardado con éxito!',
                 'response': 'OK',
                 data: req.body.data
             })
@@ -26,6 +26,41 @@ const saveUsuario = async (req, res) =>{
         
         
     } catch (error) {
+        if (error.name) {
+            res.status(400).json({
+                error,
+                message : 'error en la creación'
+            })
+        } else {
+            res.status(500).json({
+                error,
+                message : 'Error inesperado'
+            })
+        }
+    }
+}
+
+
+const createUsuario = async (req, res) =>{
+    const {nombre, documento, password, email, celular, username} = req.body?.data
+    // console.log(password + ", ", nombre + ", " + email + ", " + celular)
+
+    try {
+        let arrayInsertUsuario = [`${nombre}`, `${celular}`, `${documento}`, `${email}`, `${password}`, null, `${username}`];
+        // console.log("result", arrayInsertUsuario);
+        // let arrayInsertProf = [`${nombre}`, `${descripcion}`, `${documento}`, `${celular}`, `${email}`, `${categoria_id}`, `${precio}`, `${imagen}`]
+        const result = await sequelize.query('INSERT INTO usuario (nombre, celular, documento, email, password, rol_id, username) VALUES( ?, ?, ?, ?, ?, ?, ?)',
+        {replacements: arrayInsertUsuario , type: sequelize.QueryTypes.INSERT })
+        
+        res.status(200).json({
+            message: 'Usuario Creado con éxito!',
+            'response': 'OK',
+            data: result
+        })
+        
+    } catch (error) {
+        console.log("error ", error );
+
         if (error.name) {
             res.status(400).json({
                 error,
@@ -290,6 +325,7 @@ const logOut = async (req, res) =>{
 }
 
 exports.saveUsuario = saveUsuario
+exports.createUsuario = createUsuario
 exports.updateUsuario = updateUsuario
 exports.getUsuarios = getUsuarios
 exports.getRole = getRole
