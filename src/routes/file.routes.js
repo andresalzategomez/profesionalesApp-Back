@@ -7,7 +7,7 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
         filename:function(res, file, cb){
-            console.log("file", file);
+            // console.log("file", file);
             const ext = file.originalname.split('.').pop();
             const fileName = Date.now();
             cb(null, `${fileName}.${ext}`);

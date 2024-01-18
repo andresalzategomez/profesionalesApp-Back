@@ -18,7 +18,6 @@ const saveUsuario = async (req, res) =>{
                 'response': 'OK',
                 data: req.body.data
             })
-            console.log("respuesta ", value );
           })
           .catch((err) => {
             console.error(err);
@@ -77,7 +76,7 @@ const createUsuario = async (req, res) =>{
 
 const updateUsuario = async (req, res) =>{
     const { id, nombre, correo, celular} = req.body?.data
-    console.log(id + ", ", nombre + ", " + correo + ", " + celular)
+    // console.log(id + ", ", nombre + ", " + correo + ", " + celular)
 
     try {
         const result = await sequelize.query(`UPDATE usuario 
@@ -176,6 +175,59 @@ const getRole = async (req, res) =>{
     }
 }
 
+const getCategorias = async (req, res) =>{
+    try {
+        const categoria = await sequelize.query('SELECT * FROM categoria', {type: sequelize.QueryTypes.SELECT})
+        // res.status(200).json({usaurios})
+        res.status(200).json({
+            'response': 'OK',
+            categoria
+        })
+    } catch (error) {
+        if (error.name) {
+            res.status(404).json({
+                error,
+                message: 'error en la búsqueda'
+            })
+        } else {
+            res.status(500).json({
+                error,
+                message : 'Error inesperado'
+            })
+        }
+    }
+}
+
+const saveCategorias = async (req, res) =>{
+    const {nombre, descripcion} = req.body
+    try {
+        let arrayInsertCategoria = [`${nombre}`, `${descripcion}`];
+        const result = await sequelize.query('INSERT INTO categoria (nombre, descripcion) VALUES( ?, ?)',
+        {replacements: arrayInsertCategoria , type: sequelize.QueryTypes.INSERT })
+        
+        res.status(200).json({
+            message: 'Categoría creada con éxito!',
+            'response': 'OK',
+            data: result
+        })
+        
+    } catch (error) {
+        console.log("error ", error );
+
+        if (error.name) {
+            res.status(400).json({
+                error,
+                message : 'error en la creación'
+            })
+        } else {
+            res.status(500).json({
+                error,
+                message : 'Error inesperado'
+            })
+        }
+    }
+}
+
 const getFaqs = async (req, res) =>{
     try {
         const faq = await sequelize.query('SELECT * FROM faq', {type: sequelize.QueryTypes.SELECT})
@@ -247,13 +299,13 @@ const signIn = async (req, res) =>{
         let userExist;
         
         usuarios.forEach(element => {
-            console.log("element", element);
+            // console.log("element", element);
             if(username == element.username && password == element.password){
-                console.log("value", element);
+                // console.log("value", element);
                 userExist = element
             }
         });
-        console.log("userExist", userExist);
+        // console.log("userExist", userExist);
         if(userExist != undefined){
             process.env.TOKEN = md5(userExist.username+Date.now());
             
@@ -273,7 +325,7 @@ const signIn = async (req, res) =>{
                 }
             })
 
-            console.log("token", process.env.TOKEN);
+            // console.log("token", process.env.TOKEN);
         }else{
             res.status(200).json({
                 'response': 'error',
@@ -330,5 +382,7 @@ exports.updateUsuario = updateUsuario
 exports.getUsuarios = getUsuarios
 exports.getRole = getRole
 exports.getFaqs = getFaqs
+exports.getCategorias = getCategorias
+exports.saveCategorias = saveCategorias
 exports.signIn = signIn
 exports.logOut = logOut

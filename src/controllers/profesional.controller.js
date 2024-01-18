@@ -51,7 +51,7 @@ const getOpiniones = async (req, res) =>{
         const {tenant} = req.body
         if(tenant == 'PROFESSIONAL-TENANT'){
             const opiniones = await sequelize.query('SELECT * FROM opiniones', {type: sequelize.QueryTypes.SELECT})
-            console.log("opin", opiniones);
+            // console.log("opin", opiniones);
             // res.status(200).json({usaurios})
             res.status(200).json({
                 'response': 'OK',
@@ -125,7 +125,7 @@ const createProfesional = async (req, res) =>{
 // Metodo para actualizar una nave
 const updateShipById = async (req, res) =>{
     const { name, date_creation, date_destruction, id_type } = req.body
-    console.log(name)
+    // console.log(name)
 
     try {
         const result = await sequelize.query(`UPDATE ship 

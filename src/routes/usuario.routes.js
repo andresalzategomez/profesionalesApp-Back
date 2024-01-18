@@ -4,6 +4,8 @@ const router = express.Router()
 const {checkSession} = require("../middlewares/origin.js")
 
 router.post('/saveUsuario', checkSession, usuarioController.saveUsuario)
+router.post('/getCategorias', usuarioController.getCategorias)
+router.post('/saveCategorias', checkSession, usuarioController.saveCategorias)
 router.post('/createUsuario', usuarioController.createUsuario)
 router.post('/updateUsuario', checkSession, usuarioController.updateUsuario)
 router.get('/getUsuarios',checkSession, usuarioController.getUsuarios)
