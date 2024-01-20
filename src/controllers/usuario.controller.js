@@ -75,14 +75,15 @@ const createUsuario = async (req, res) =>{
 }
 
 const updateUsuario = async (req, res) =>{
-    const { id, nombre, correo, celular} = req.body?.data
-    // console.log(id + ", ", nombre + ", " + correo + ", " + celular)
+    const { id, nombre, email, celular, rol_id} = req.body?.data
+    // console.log(id + ", ", nombre + ", " + email + ", " + celular+ ", " + rol_id)
 
     try {
         const result = await sequelize.query(`UPDATE usuario 
         SET nombre = "${nombre}",  
-        email = "${correo}",
-        celular = "${celular}"
+        email = "${email}",
+        celular = "${celular}",
+        rol_id = "${rol_id}"
         WHERE id = ${id}`,
         { type: sequelize.QueryTypes.INSERT })
         res.status(200).json({
@@ -107,35 +108,39 @@ const updateUsuario = async (req, res) =>{
 }
 
 const getUsuarios = async (req, res) =>{
-    // try {
-    //     database.ref("users").once('value').then(function(snapshot) {
-    //         usaurios = snapshot.val()
-    //         res.status(200).json({
-    //             'response': 'OK',
-    //             usaurios
-    //         })
-    //     })
-    //     // const result = await sequelize.query('SELECT * FROM ship', {type: sequelize.QueryTypes.SELECT})
-        
-    // } catch (error) {
-    //     if (error.name) {
-    //         res.status(404).json({
-    //             error,
-    //             message: 'error en la búsqueda ' + error
-    //         })
-    //     } else {
-    //         res.status(500).json({
-    //             error,
-    //             message : 'Error inesperado ' + error
-    //         })
-    //     }
-    // }
     try {
         const usaurios = await sequelize.query('SELECT * FROM usuario', {type: sequelize.QueryTypes.SELECT})
         // res.status(200).json({usaurios})
         res.status(200).json({
             'response': 'OK',
             usaurios
+        })
+    } catch (error) {
+        if (error.name) {
+            res.status(404).json({
+                error,
+                message: 'error en la búsqueda'
+            })
+        } else {
+            res.status(500).json({
+                error,
+                message : 'Error inesperado'
+            })
+        }
+    }
+}
+
+const getUsuariossinRol = async (req, res) =>{
+    try {
+        const usuarios = await sequelize.query('SELECT * FROM usuario', {type: sequelize.QueryTypes.SELECT})
+        let usuariosinRol = [];
+        usuarios.forEach(element => {
+            if(element.rol_id == null) usuariosinRol.push(element)
+        });
+
+        res.status(200).json({
+            'response': 'OK',
+            usuariosinRol
         })
     } catch (error) {
         if (error.name) {
@@ -380,6 +385,7 @@ exports.saveUsuario = saveUsuario
 exports.createUsuario = createUsuario
 exports.updateUsuario = updateUsuario
 exports.getUsuarios = getUsuarios
+exports.getUsuariossinRol = getUsuariossinRol
 exports.getRole = getRole
 exports.getFaqs = getFaqs
 exports.getCategorias = getCategorias
