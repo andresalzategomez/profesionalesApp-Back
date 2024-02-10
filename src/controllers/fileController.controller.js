@@ -4,7 +4,7 @@ const uploadFile = async (req, res) =>{
     try {
         res.status(200).json({
             'response': 'OK',
-            'url': req.protocol + "://" + req.get ('host') + "/" + req.file.filename
+            'url': req.file.filename
         // })
         })
 
