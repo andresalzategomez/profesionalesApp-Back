@@ -14,7 +14,6 @@ const storage = multer.diskStorage({
         },
         destination:function(res, file, cb){
             // cb(null, `./src/public`)
-            console.log("URLIMAGEN", process.env['URLIMAGEN']);
             cb(null, process.env['URLIMAGEN'] )
         }
     }
