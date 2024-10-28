@@ -5,7 +5,6 @@ const bodyParser = require('body-parser') // metodo para asignar cuerpo de una p
 const cors = require('cors') // metodo para proteger y permitir recursos mediante HTTP
 const port = process.env.PORT || 3000 // condicionar la varibale port para que se obtenga primero el valor en las variables de entorno
 
-
 //asignar ruta a una variable
 const profesionalRoute = require('./routes/profesional.routes')
 const usuarioRoute = require('./routes/usuario.routes')
@@ -28,7 +27,6 @@ app.get("/", (req, res) =>{
     res.send("Hello Word!")
 })
 
-
 // habilitar y unir las rutas
 app.use('/v1/api/prof', profesionalRoute)
 app.use('/v1/api/usuario', usuarioRoute)
@@ -38,7 +36,7 @@ app.use('/v1/api/file', fileRoute)
 
 // escuchar el puerto de conexión e imprimirlo por consola
 app.listen(port, ()=> {
-    console.log("server running on port", port)
-})  
+    console.log("server running on port", port);
+})
 
 module.exports = app

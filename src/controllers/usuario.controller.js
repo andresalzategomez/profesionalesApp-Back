@@ -2,6 +2,21 @@
 const sequelize = require('../conection') // importar la clase par la conexión de la base datos
 require('dotenv').config();
 const md5 = require('crypto-js/md5')
+const { createHash } = require('crypto');
+let codigoRecuperacion = ""
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+      user: "derechosapp@gmail.com",
+      pass: "xbah qvfe kofi efll",
+    },
+  });
+
 // let database = connectDB();
 
 
@@ -45,7 +60,7 @@ const createUsuario = async (req, res) =>{
     // console.log(password + ", ", nombre + ", " + email + ", " + celular)
 
     try {
-        let arrayInsertUsuario = [`${nombre}`, `${celular}`, `${documento}`, `${email}`, `${password}`, null, `${username}`];
+        let arrayInsertUsuario = [`${nombre}`, `${celular}`, `${documento}`, `${email}`, `${createHash('sha256').update(password).digest('base64')}`, null, `${username}`];
         // console.log("result", arrayInsertUsuario);
         // let arrayInsertProf = [`${nombre}`, `${descripcion}`, `${documento}`, `${celular}`, `${email}`, `${categoria_id}`, `${precio}`, `${imagen}`]
         const result = await sequelize.query('INSERT INTO usuario (nombre, celular, documento, email, password, rol_id, username) VALUES( ?, ?, ?, ?, ?, ?, ?)',
@@ -75,15 +90,14 @@ const createUsuario = async (req, res) =>{
 }
 
 const updateUsuario = async (req, res) =>{
-    const { id, nombre, email, celular, rol_id} = req.body?.data
+    const { id, nombre, correo, celular} = req.body?.data
     // console.log(id + ", ", nombre + ", " + email + ", " + celular+ ", " + rol_id)
 
     try {
         const result = await sequelize.query(`UPDATE usuario 
         SET nombre = "${nombre}",  
-        email = "${email}",
-        celular = "${celular}",
-        rol_id = "${rol_id}"
+        email = "${correo}",
+        celular = "${celular}"
         WHERE id = ${id}`,
         { type: sequelize.QueryTypes.INSERT })
         res.status(200).json({
@@ -260,52 +274,13 @@ const signIn = async (req, res) =>{
     const {password, username} = req.body
     // let arrayInsertShip = [`${name}`, `${date_creation}`, `${date_destruction}`, `${id_type}`]
     try {
-        // database.ref("users").once('value').then(function(snapshot) {
-        //     usaurios = snapshot.val()
-        //     console.log("rol", usaurios.role);
-        //     let userExist;
-        //     Object.entries(usaurios).forEach(([key, value]) => {
-        //         if(username == value.username && password == value.password){
-        //             console.log("value", value);
-        //             userExist = value
-        //         }
-        //     });
-        //     console.log("userExist", userExist);
-        //     if(userExist != undefined){
-        //         process.env['TOKEN'] = md5(userExist.username+Date.now());
-                
-        //         res.status(200).json({
-        //             'response': 'OK',
-        //             'description': 'Inicio de sesión exitoso!',
-        //             'accessToken': process.env['TOKEN'],
-        //             '_authenticated': true,
-        //             'authenticatedData': {
-        //                 'nombre': userExist.nombre,
-        //                 'rol': userExist.role,
-        //                 'celular': userExist.celular,
-        //                 'correo': userExist.correo,
-        //                 'username': userExist.username
-        //             }
-        //         })
-
-        //         console.log("token", process.env.TOKEN);
-        //     }else{
-        //         res.status(200).json({
-        //             'response': 'error',
-        //             'description': 'El usuario no existe',
-        //             'accessToken': null,
-        //             '_authenticated': false,
-        //             'authenticatedData': null
-        //         })
-        //     }
-        // })
         const usuarios = await sequelize.query('SELECT * FROM usuario', {type: sequelize.QueryTypes.SELECT})
         // console.log("usaurios", usaurios);
         let userExist;
         
         usuarios.forEach(element => {
             // console.log("element", element);
-            if(username == element.username && password == element.password){
+            if(username == element.username && createHash('sha256').update(password).digest('base64') == element.password){
                 // console.log("value", element);
                 userExist = element
             }
@@ -356,6 +331,37 @@ const signIn = async (req, res) =>{
     }
 }
 
+const forgotPassword = async (req, res) =>{
+    try {
+        const {email} = req.body
+        
+        const usuarios = await sequelize.query('SELECT * FROM usuario', {type: sequelize.QueryTypes.SELECT})
+        const found = usuarios?.find((element) => element.email = email);
+        // console.log("found", found?.email);
+
+         sendMail(found);
+         
+        // res.status(200).json({usaurios})
+        res.status(200).json({
+            'response': 'OK',
+            "usuarios": usuarios,
+            "codigoRecuperacion": codigoRecuperacion
+        })
+    } catch (error) {
+        if (error.name) {
+            res.status(404).json({
+                error,
+                message: 'error en la búsqueda'
+            })
+        } else {
+            res.status(500).json({
+                error,
+                message : 'Error inesperado'
+            })
+        }
+    }
+}
+
 const logOut = async (req, res) =>{
     try {
         process.env.TOKEN = undefined;
@@ -381,6 +387,20 @@ const logOut = async (req, res) =>{
     }
 }
 
+async function sendMail(destinatario) {
+    codigoRecuperacion = Math.floor(Math.random() * 999999)
+    // send mail with defined transport object
+   const info = await transporter.sendMail({
+      from: '"Derechos APP" <derechosapp@gmail.com>', // sender address
+      to: destinatario?.email, // list of receivers
+      subject: "Código cambio de contraseña - DerechosApp", // Subject line
+      text: "Hello " + destinatario?.nombre + "!", // plain text body
+      html: "<b>Hello " + destinatario?.nombre + "</b><br> <b>Para continuar con el proceso de cambio de contraseña por favor ingresa el siguiente código de validación:</b><br><br><br><br><div style='background: blue; width:100%; height: 40px; display: flex; align-items: center; justify-content: center; color:white;'><b class=''>" + codigoRecuperacion + "</b></div>", // html body
+    });
+  
+    console.log("Message sent: %s", info.messageId);
+}
+
 exports.saveUsuario = saveUsuario
 exports.createUsuario = createUsuario
 exports.updateUsuario = updateUsuario
@@ -391,4 +411,5 @@ exports.getFaqs = getFaqs
 exports.getCategorias = getCategorias
 exports.saveCategorias = saveCategorias
 exports.signIn = signIn
+exports.forgotPassword = forgotPassword
 exports.logOut = logOut

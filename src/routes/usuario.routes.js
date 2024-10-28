@@ -13,6 +13,7 @@ router.post('/getUsuariossinRol',checkSession, usuarioController.getUsuariossinR
 router.post('/getRole', checkSession, usuarioController.getRole)
 router.post('/getFaq', usuarioController.getFaqs)
 router.post('/signIn', usuarioController.signIn)
+router.post('/forgotPassword', usuarioController.forgotPassword)
 router.post('/logOut', usuarioController.logOut)
 
 module.exports = router
